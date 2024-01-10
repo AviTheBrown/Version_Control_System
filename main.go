@@ -9,22 +9,22 @@ import (
 
 type SVCS map[string]string
 
-func printValidCommands(mySVCS SVCS) string {
+func printValidCommands(wrongCmd string, mySVCS SVCS) string {
 	var commandBuilder strings.Builder
-	commandBuilder.WriteString("These are SVCS commands:\n")
+	commandBuilder.WriteString(fmt.Sprintf("'%s' is not a valid SVCS command.", wrongCmd))
 
-	for commands, description := range mySVCS {
-		commandBuilder.WriteString(fmt.Sprintf("%-10s%s\n", commands, description))
-	}
+	// for commands, description := range mySVCS {
+	// 	commandBuilder.WriteString(fmt.Sprintf("%-10s%s\n", commands, description))
+	// }
 	return commandBuilder.String()
 }
 
 func commandDescription(command string, svc SVCS) string {
 	if description, ok := svc[command]; ok {
-		fmt.Println(description)
 		return description
+	} else {
+		return printValidCommands(command, svc)
 	}
-	return printValidCommands(svc)
 }
 func parseCommand(command string, svc SVCS) string {
 	if description, ok := svc[command]; ok {
@@ -45,7 +45,8 @@ func main() {
 	command := os.Args[1]
 	// trimmedCommad := command[1:]
 	// cmd := flag.String("command", "", printValidCommands(mySVCS))
-	flag.StringVar(&command, "command", "", printValidCommands(mySVCS))
+	flag.StringVar(&command, "command", "", printValidCommands(command, mySVCS))
 	flag.Parse()
-	commandDescription(command, mySVCS)
+	description := commandDescription(command, mySVCS)
+	fmt.Println(description)
 }
