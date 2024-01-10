@@ -47,5 +47,5 @@ func main() {
 	// cmd := flag.String("command", "", printValidCommands(mySVCS))
 	flag.StringVar(&command, "command", "", printValidCommands(mySVCS))
 	flag.Parse()
-	fmt.Println("Parsed command:", commandDescription(command, mySVCS))
+	commandDescription(command, mySVCS)
 }
