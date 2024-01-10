@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -19,15 +20,20 @@ func main() {
 
 	command := flag.String("command", "", "These are SVCS commands:")
 	flag.Parse()
-	result, err := validateCommand(*command, mySVCS)
-	if err != nil {
-		fmt.Println(err)
-		optionString := printValidCommands(mySVCS)
-		fmt.Println(optionString)
-		return
+
+	if *command == "help" || *command == "" {
+		printValidCommands(mySVCS)
+		os.Exit(0)
 	}
 
-	fmt.Println(result)
+	description, err := validateCommand(*command, mySVCS)
+	if err != nil {
+		fmt.Println(err)
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	fmt.Printf("%s %s", *command, description)
 }
 func validateCommand(command string, mySVCS SVCS) (string, error) {
 	if command == "help" || command == "" {
@@ -42,7 +48,7 @@ func validateCommand(command string, mySVCS SVCS) (string, error) {
 
 func printValidCommands(mySVCS SVCS) string {
 	var commandBuilder strings.Builder
-	commandBuilder.WriteString("These are SVCS commands:")
+	commandBuilder.WriteString("These are SVCS commands:\n")
 
 	for commands, description := range mySVCS {
 		commandBuilder.WriteString(fmt.Sprintf("%s\t%s\n", commands, description))
