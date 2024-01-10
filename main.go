@@ -1,52 +1,57 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
-	"strings"
 )
 
 type SVCS map[string]string
 
-func printValidCommands(wrongCmd string, mySVCS SVCS) string {
-	var commandBuilder strings.Builder
-	commandBuilder.WriteString(fmt.Sprintf("'%s' is not a valid SVCS command.", wrongCmd))
-
-	// for commands, description := range mySVCS {
-	// 	commandBuilder.WriteString(fmt.Sprintf("%-10s%s\n", commands, description))
-	// }
-	return commandBuilder.String()
+func printAllCommands(mySVCS SVCS, svcsOrder []string) {
+	fmt.Println("These are SVCS commands:")
+	for _, command := range svcsOrder {
+		decription := mySVCS[command]
+		fmt.Printf("%-10s%s\n", command, decription)
+	}
+}
+func printValidCommands(command string, mySVCS SVCS) string {
+	if _, ok := mySVCS[command]; ok {
+		return commandDescription(command, mySVCS)
+	} else {
+		return fmt.Sprintf("'%s' is not a SVCS command.", command)
+	}
 }
 
 func commandDescription(command string, svc SVCS) string {
 	if description, ok := svc[command]; ok {
 		return description
 	} else {
-		return printValidCommands(command, svc)
+		return fmt.Sprintf("'%s' is not a SVCS command.", command)
 	}
 }
-func parseCommand(command string, svc SVCS) string {
-	if description, ok := svc[command]; ok {
-		return description
-	}
-	return "help"
-}
-func main() {
 
+func main() {
 	mySVCS := SVCS{
 		"config":   "Get and set a username.",
 		"add":      "Add a file to the index.",
 		"log":      "Show commit logs.",
 		"commit":   "Save changes.",
-		"checkout": "Restore a file."}
+		"checkout": "Restore a file.",
+	}
 
-	// reterive the [1] arg to pass as the flag
+	commandOrder := []string{"config", "add", "log", "commit", "checkout"}
+
+	// Check if there are enough command-line arguments
+	if len(os.Args) < 2 || os.Args[1] == "help" || os.Args[1] == "-help" || os.Args[1] == "--help" {
+		printAllCommands(mySVCS, commandOrder)
+		return
+	}
+	// Retrieve the command from command-line arguments
 	command := os.Args[1]
-	// trimmedCommad := command[1:]
-	// cmd := flag.String("command", "", printValidCommands(mySVCS))
-	flag.StringVar(&command, "command", "", printValidCommands(command, mySVCS))
-	flag.Parse()
-	description := commandDescription(command, mySVCS)
+
+	// Use the command directly without using flag.StringVar
+	description := printValidCommands(command, mySVCS)
+
+	// Print the description
 	fmt.Println(description)
 }
