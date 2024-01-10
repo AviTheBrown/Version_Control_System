@@ -9,6 +9,29 @@ import (
 
 type SVCS map[string]string
 
+func printValidCommands(mySVCS SVCS) string {
+	var commandBuilder strings.Builder
+	commandBuilder.WriteString("These are SVCS commands:\n")
+
+	for commands, description := range mySVCS {
+		commandBuilder.WriteString(fmt.Sprintf("%-10s%s\n", commands, description))
+	}
+	return commandBuilder.String()
+}
+
+func commandDescription(command string, svc SVCS) string {
+	if description, ok := svc[command]; ok {
+		fmt.Println(description)
+		return description
+	}
+	return printValidCommands(svc)
+}
+func parseCommand(command string, svc SVCS) string {
+	if description, ok := svc[command]; ok {
+		return description
+	}
+	return "help"
+}
 func main() {
 
 	mySVCS := SVCS{
@@ -18,40 +41,11 @@ func main() {
 		"commit":   "Save changes.",
 		"checkout": "Restore a file."}
 
-	command := flag.String("command", "", "These are SVCS commands:")
+	// reterive the [1] arg to pass as the flag
+	command := os.Args[1]
+	// trimmedCommad := command[1:]
+	// cmd := flag.String("command", "", printValidCommands(mySVCS))
+	flag.StringVar(&command, "command", "", printValidCommands(mySVCS))
 	flag.Parse()
-
-	if *command == "help" || *command == "" {
-		printValidCommands(mySVCS)
-		os.Exit(0)
-	}
-
-	description, err := validateCommand(*command, mySVCS)
-	if err != nil {
-		fmt.Println(err)
-		flag.Usage()
-		os.Exit(1)
-	}
-
-	fmt.Printf("%s %s", *command, description)
-}
-func validateCommand(command string, mySVCS SVCS) (string, error) {
-	if command == "help" || command == "" {
-		return "", fmt.Errorf(printValidCommands(mySVCS))
-	}
-	value, ok := mySVCS[command]
-	if !ok {
-		printValidCommands(mySVCS)
-	}
-	return value, nil
-}
-
-func printValidCommands(mySVCS SVCS) string {
-	var commandBuilder strings.Builder
-	commandBuilder.WriteString("These are SVCS commands:\n")
-
-	for commands, description := range mySVCS {
-		commandBuilder.WriteString(fmt.Sprintf("%s\t%s\n", commands, description))
-	}
-	return commandBuilder.String()
+	fmt.Println("Parsed command:", commandDescription(command, mySVCS))
 }
