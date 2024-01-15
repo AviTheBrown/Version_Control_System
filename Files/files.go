@@ -1,4 +1,4 @@
-package main
+package files
 
 import (
 	datatypes "Version_Control_System/DataTypes"
