@@ -2,8 +2,8 @@ package main
 
 import (
 	"Version_Control_System/DataTypes"
+	"flag"
 	"fmt"
-	"os"
 )
 
 func main() {
@@ -17,18 +17,22 @@ func main() {
 
 	commandOrder := []string{"config", "add", "log", "commit", "checkout"}
 
-	// Check if there are enough command-line arguments
-	if len(os.Args) < 2 || os.Args[1] == "help" || os.Args[1] == "-help" || os.Args[1] == "--help" {
-		printAllCommands(mySVCS, commandOrder)
+	processCommandLine(mySVCS, commandOrder)
+}
+func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
+	helpflag := flag.Bool("help", false, "Prints Help Message")
+	flag.Parse()
+
+	if *helpflag {
+		printAllCommands(mySCVS, svcsOrder)
+	}
+
+	if flag.NArg() == 0 {
+		fmt.Println("//todo")
 		return
 	}
-	// Retrieve the command from command-line arguments
-	command := os.Args[1]
-
-	// Use the command directly without using flag.StringVar
-	description := printValidCommands(command, mySVCS)
-
-	// Print the description
+	command := flag.Arg(0)
+	description := printValidCommands(command, mySCVS)
 	fmt.Println(description)
 }
 func printAllCommands(mySVCS datatypes.SVCS, svcsOrder []string) {
