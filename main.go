@@ -1,14 +1,13 @@
 package main
 
 import (
+	"Version_Control_System/DataTypes"
 	"fmt"
 	"os"
 )
 
-type SVCS map[string]string
-
 func main() {
-	mySVCS := SVCS{
+	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
 		"add":      "Add a file to the index.",
 		"log":      "Show commit logs.",
@@ -32,15 +31,14 @@ func main() {
 	// Print the description
 	fmt.Println(description)
 }
-
-func printAllCommands(mySVCS SVCS, svcsOrder []string) {
+func printAllCommands(mySVCS datatypes.SVCS, svcsOrder []string) {
 	fmt.Println("These are SVCS commands:")
 	for _, command := range svcsOrder {
 		decription := mySVCS[command]
 		fmt.Printf("%-10s%s\n", command, decription)
 	}
 }
-func printValidCommands(command string, mySVCS SVCS) string {
+func printValidCommands(command string, mySVCS datatypes.SVCS) string {
 	if _, ok := mySVCS[command]; ok {
 		return commandDescription(command, mySVCS)
 	} else {
@@ -48,7 +46,7 @@ func printValidCommands(command string, mySVCS SVCS) string {
 	}
 }
 
-func commandDescription(command string, svc SVCS) string {
+func commandDescription(command string, svc datatypes.SVCS) string {
 	if description, ok := svc[command]; ok {
 		return description
 	} else {
