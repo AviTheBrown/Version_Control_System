@@ -4,6 +4,7 @@ import (
 	"Version_Control_System/DataTypes"
 	"flag"
 	"fmt"
+	"os"
 )
 
 func main() {
@@ -20,17 +21,16 @@ func main() {
 	processCommandLine(mySVCS, commandOrder)
 }
 
-// func commandActions(command string) *datatypes.User{
-// 	user := datatypes.CreateUser()
-// 	switch command {
-// 		case "config":
-// 		user.ConfigAction(command)
-// 		case "add":
-// 		user.AddAction()
+func commandActions(command string, usr datatypes.User) *datatypes.User {
+	switch command {
+	case "config":
+		usr.ConfigAction(command)
+	case "add":
+		usr.AddAction(command)
 
-// 	}
-// 	return user
-// }
+	}
+	return &usr
+}
 
 // func flagProcessing(flag *string) {
 // 	switch flag{
@@ -49,7 +49,17 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 
 	command := flag.Arg(0)
 	description := printValidCommands(command, mySCVS)
+
+	user := datatypes.CreateUser()
+	if len(os.Args) >= 3 {
+		switch os.Args[1] {
+		case "add":
+			filepath := os.Args[2]
+			fmt.Println(user.AddAction(filepath))
+		}
+	}
 	fmt.Println(description)
+	fmt.Println(user.FileInfo)
 }
 
 func printAllCommands(mySVCS datatypes.SVCS, svcsOrder []string) {

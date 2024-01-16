@@ -1,5 +1,7 @@
 package datatypes
 
+import "fmt"
+
 type SVCS map[string]string
 
 type FileInfo struct {
@@ -22,6 +24,7 @@ func (u *User) ConfigAction(userName string) *User {
 	return u
 }
 
-func (u *User) AddAction(fileName string) {
+func (u *User) AddAction(fileName string) string {
 	u.FileNames = append(u.FileNames, fileName)
+	return fmt.Sprintf("The file '%v' is tracked.", fileName)
 }
