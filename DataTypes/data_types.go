@@ -15,7 +15,7 @@ type User struct {
 }
 
 func CreateUser() *User {
-	return new(User)
+	return &User{}
 }
 func (u *User) ConfigAction(userName string) string {
 	if u.UserName == userName {

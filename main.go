@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+var user *datatypes.User
+
 func main() {
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
@@ -18,16 +20,18 @@ func main() {
 
 	commandOrder := []string{"config", "add", "log", "commit", "checkout"}
 
+	user = datatypes.LoadUser()
 	processCommandLine(mySVCS, commandOrder)
 }
 
-func commandActions(command string, usr datatypes.User) {
+func commandActions(command string, usr *datatypes.User) {
 	switch command {
 	case "config":
 		fmt.Println(usr.ConfigAction(os.Args[2]))
 	case "add":
 		if len(os.Args) > 2 {
 			fmt.Println(usr.AddAction(os.Args[2]))
+			datatypes.SaveUser(user)
 		} else {
 			fmt.Println("Add a file to the index.")
 		}
@@ -35,7 +39,6 @@ func commandActions(command string, usr datatypes.User) {
 	}
 }
 func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
-	user := datatypes.CreateUser()
 	helpflag := flag.Bool("help", false, "Prints Help Message")
 	flag.Parse()
 
@@ -45,7 +48,7 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 	}
 	command := flag.Arg(0)
 
-	commandActions(command, *user)
+	commandActions(command, user)
 
 	if command == "add" && len(user.FileNames) > 0 {
 		fmt.Println("Tracked Files:")
