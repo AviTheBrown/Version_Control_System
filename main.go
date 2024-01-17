@@ -21,24 +21,21 @@ func main() {
 	processCommandLine(mySVCS, commandOrder)
 }
 
-func commandActions(command string, usr datatypes.User) *datatypes.User {
+func commandActions(command string, usr datatypes.User) {
 	switch command {
 	case "config":
-		usr.ConfigAction(command)
+		fmt.Println(usr.ConfigAction(os.Args[2]))
 	case "add":
-		usr.AddAction(command)
+		if len(os.Args) > 2 {
+			fmt.Println(usr.AddAction(os.Args[2]))
+		} else {
+			fmt.Println("Add a file to the index.")
+		}
 
 	}
-	return &usr
 }
-
-// func flagProcessing(flag *string) {
-// 	switch flag{
-// 		case "add":
-
-//		}
-//	}
 func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
+	user := datatypes.CreateUser()
 	helpflag := flag.Bool("help", false, "Prints Help Message")
 	flag.Parse()
 
@@ -46,20 +43,18 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 		printAllCommands(mySCVS, svcsOrder)
 		return
 	}
-
 	command := flag.Arg(0)
-	description := printValidCommands(command, mySCVS)
 
-	user := datatypes.CreateUser()
-	if len(os.Args) >= 3 {
-		switch os.Args[1] {
-		case "add":
-			filepath := os.Args[2]
-			fmt.Println(user.AddAction(filepath))
+	commandActions(command, *user)
+
+	if command == "add" && len(user.FileNames) > 0 {
+		fmt.Println("Tracked Files:")
+		for _, file := range user.FileNames {
+			fmt.Println(file)
 		}
+	} else {
+		printValidCommands(command, mySCVS)
 	}
-	fmt.Println(description)
-	fmt.Println(user.FileInfo)
 }
 
 func printAllCommands(mySVCS datatypes.SVCS, svcsOrder []string) {
