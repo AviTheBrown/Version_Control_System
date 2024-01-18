@@ -26,7 +26,22 @@ func (u *User) ConfigAction(userName string) string {
 	return fmt.Sprintf("The username is %s", u.UserName)
 }
 
+func containsFile(files []string, target string) bool {
+	for _, element := range files {
+		if element == target {
+			return true
+		}
+	}
+	return false
+}
 func (u *User) AddAction(fileName string) string {
+	output := fmt.Sprintf("'%s'is already tracked.", fileName)
+	if containsFile(u.FileNames, fileName) {
+		for _, files := range u.FileNames {
+			fmt.Println(files)
+		}
+		return output
+	}
 	u.FileNames = append(u.FileNames, fileName)
 	return fmt.Sprintf("The file '%v' is tracked.", fileName)
 }
