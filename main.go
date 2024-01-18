@@ -8,6 +8,7 @@ import (
 )
 
 var user *datatypes.User
+var commandOrder []string
 
 func main() {
 	mySVCS := datatypes.SVCS{
@@ -18,7 +19,7 @@ func main() {
 		"checkout": "Restore a file.",
 	}
 
-	commandOrder := []string{"config", "add", "log", "commit", "checkout"}
+	commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 	user = datatypes.LoadUser()
 	processCommandLine(mySVCS, commandOrder)
@@ -27,15 +28,15 @@ func main() {
 func commandActions(command string, usr *datatypes.User) {
 	switch command {
 	case "config":
-		fmt.Println(usr.ConfigAction(os.Args[2]))
+		fmt.Println(usr.ConfigAction(os.Args[1]))
 	case "add":
 		if len(os.Args) > 2 {
-			fmt.Println(usr.AddAction(os.Args[2]))
+			result := usr.AddAction(os.Args[2])
+			fmt.Println(result)
 			datatypes.SaveUser(user)
-		} else {
-			fmt.Println("Add a file to the index.")
 		}
-
+	default:
+		fmt.Println("TODO")
 	}
 }
 func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
@@ -51,17 +52,36 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 	commandActions(command, user)
 
 	if command == "add" {
+		// if its the first time using add ./main add
 		if len(user.FileNames) == 0 {
-			fmt.Println("Add files to index.")
-		} else if len(user.FileNames) > 1 {
+			printValidCommands(command, mySCVS)
+			// if only the add command is used with tracked filed ./main add
+		} else if len(user.FileNames) > 0 && len(flag.Args()) == 1 {
+			// prints out all the tracked files
 			fmt.Println("Tracked files:")
 			for _, file := range user.FileNames {
 				fmt.Println(file)
 			}
+		} else {
+
 		}
-	} else {
-		printValidCommands(command, mySCVS)
 	}
+	// // if command == "add" {
+	// // 	if len(user.FileNames) == 0 {
+	// 		// printValidCommands(command, mySCVS)
+	// } else if len(user.FileNames) > 0 && flag.Arg(1) == ""{
+	// 			print
+	// }
+	// 	} else if len(user.FileNames) > 1 {
+	// 		fmt.Println("Tracked files:")
+	// 		for _, file := range user.FileNames {
+	// 			fmt.Println(file)
+	// 		}
+	// 	}
+	// } else {
+	// 	printValidCommands(command, mySCVS)
+	// }
+	// printValidCommands(command, mySCVS)
 }
 
 func printAllCommands(mySVCS datatypes.SVCS, svcsOrder []string) {
