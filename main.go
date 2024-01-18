@@ -50,10 +50,14 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 
 	commandActions(command, user)
 
-	if command == "add" && len(user.FileNames) > 0 {
-		fmt.Println("Tracked Files:")
-		for _, file := range user.FileNames {
-			fmt.Println(file)
+	if command == "add" {
+		if len(user.FileNames) == 0 {
+			fmt.Println("Add files to index.")
+		} else if len(user.FileNames) > 1 {
+			fmt.Println("Tracked files:")
+			for _, file := range user.FileNames {
+				fmt.Println(file)
+			}
 		}
 	} else {
 		printValidCommands(command, mySCVS)
