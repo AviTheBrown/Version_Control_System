@@ -66,22 +66,6 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 
 		}
 	}
-	// // if command == "add" {
-	// // 	if len(user.FileNames) == 0 {
-	// 		// printValidCommands(command, mySCVS)
-	// } else if len(user.FileNames) > 0 && flag.Arg(1) == ""{
-	// 			print
-	// }
-	// 	} else if len(user.FileNames) > 1 {
-	// 		fmt.Println("Tracked files:")
-	// 		for _, file := range user.FileNames {
-	// 			fmt.Println(file)
-	// 		}
-	// 	}
-	// } else {
-	// 	printValidCommands(command, mySCVS)
-	// }
-	// printValidCommands(command, mySCVS)
 }
 
 func printAllCommands(mySVCS datatypes.SVCS, svcsOrder []string) {
