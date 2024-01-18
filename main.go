@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Version_Control_System/DataTypes"
+	datatypes "Version_Control_System/DataTypes"
 	"flag"
 	"fmt"
 	"os"
