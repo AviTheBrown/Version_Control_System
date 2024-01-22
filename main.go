@@ -8,9 +8,11 @@ import (
 )
 
 var user *datatypes.User
-var commandOrder []string
+var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 func main() {
+	user = datatypes.CreateUser()
+	fmt.Println(user.UserName)
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
 		"add":      "Add a file to the index.",
@@ -19,13 +21,10 @@ func main() {
 		"checkout": "Restore a file.",
 	}
 
-	commandOrder = []string{"config", "add", "log", "commit", "checkout"}
-
-	user = datatypes.LoadUser()
 	processCommandLine(mySVCS, commandOrder)
 }
 
-func commandActions(command string, usr *datatypes.User) {
+func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) {
 	switch command {
 	case "config":
 		fmt.Println(usr.ConfigAction(os.Args[1]))
@@ -33,10 +32,12 @@ func commandActions(command string, usr *datatypes.User) {
 		if len(os.Args) > 2 {
 			result := usr.AddAction(os.Args[2])
 			fmt.Println(result)
-			datatypes.SaveUser(user)
+		} else {
+			printValidCommands(command, mySVCS)
 		}
 	default:
-		fmt.Println("TODO")
+		defaultString := fmt.Sprintf(printValidCommands(command, mySVCS))
+		fmt.Println(defaultString)
 	}
 }
 func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
@@ -49,7 +50,7 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 	}
 	command := flag.Arg(0)
 
-	commandActions(command, user)
+	commandActions(command, user, mySCVS)
 
 	if command == "add" {
 		// if its the first time using add ./main add
@@ -57,13 +58,12 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 			printValidCommands(command, mySCVS)
 			// if only the add command is used with tracked filed ./main add
 		} else if len(user.FileNames) > 0 && len(flag.Args()) == 1 {
+			fmt.Println("test")
 			// prints out all the tracked files
 			fmt.Println("Tracked files:")
 			for _, file := range user.FileNames {
 				fmt.Println(file)
 			}
-		} else {
-
 		}
 	}
 }

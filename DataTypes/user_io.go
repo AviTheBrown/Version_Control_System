@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-const userDataFile = "userdata.gob"
+const userDataFile = "user_data.gob"
 
 func SaveUser(user *User) {
 	file, err := os.Create(userDataFile)
@@ -27,7 +27,7 @@ func SaveUser(user *User) {
 func LoadUser() *User {
 	file, err := os.Open(userDataFile)
 	if err != nil {
-		fmt.Println("No exisiting user data found", err)
+		// fmt.Println("No exisiting user data found", err)
 		return CreateUser()
 	}
 	defer file.Close()
