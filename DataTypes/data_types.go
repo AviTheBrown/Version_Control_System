@@ -1,13 +1,13 @@
 package datatypes
 
 import (
+	mutex "Version_Control_System/Mutex"
 	"fmt"
 )
 
 type SVCS map[string]string
 
 type FileInfo struct {
-	// Files     []*os.File
 	FileNames []string
 }
 type User struct {
@@ -50,28 +50,15 @@ func containsFile(files []string, target string) bool {
 	}
 	return false
 }
-func (u User) AddAction(fileName string) (updatedUser User, output string) {
+func (u *User) AddAction(fileName string) (updatedUser *User, output string) {
 
-	// // create the file
-	// openedFile, err := files.CreateFile(fileName)
-	// if err != nil {
-	// 	return fmt.Sprintf("Error opening file %s: %v", fileName, err)
-	// }
-
-	// check if the file exist
-	// _, err = os.Stat(fileName)
-	// if os.IsNotExist(err) {
-	// 	return fmt.Sprintf("Can't find '%s'.", fileName)
-	// }
-
-	// check for duplicates
+	mutex := mutex.GetUserMutexData()
+	mutex.Lock()
+	defer mutex.Unlock()
 	if u.isFileTracked(fileName) {
 		return u, formatOutput(fileName, true)
 	}
-	updatedUser = User{
-		UserName: u.UserName,
-		FileInfo: FileInfo{FileNames: append(u.FileNames, fileName)},
-	}
+	u.FileNames = append(u.FileNames, fileName)
 	output = formatOutput(fileName, false)
 	return
 }

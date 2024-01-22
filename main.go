@@ -2,14 +2,19 @@ package main
 
 import (
 	datatypes "Version_Control_System/DataTypes"
+	mutex "Version_Control_System/Mutex"
 	"flag"
 	"fmt"
 	"os"
+	"sync"
 )
 
 var user *datatypes.User
 var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
+func init() {
+	user = &datatypes.User{}
+}
 func main() {
 	user = datatypes.CreateUser()
 	fmt.Println(user.UserName)
@@ -24,13 +29,24 @@ func main() {
 	processCommandLine(mySVCS, commandOrder)
 }
 
+func GetDataUserMutex() *sync.Mutex {
+	return &mutex.UserDataMutex
+}
+func saveUserData() {
+	mutex.UserDataMutex.Lock()
+	defer mutex.UserDataMutex.Unlock()
+	fmt.Println("user saved")
+}
 func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) {
 	switch command {
 	case "config":
 		fmt.Println(usr.ConfigAction(os.Args[1]))
 	case "add":
 		if len(os.Args) > 2 {
-			result := usr.AddAction(os.Args[2])
+			var result string
+			mutex.UserDataMutex.Lock()
+			user, result = usr.AddAction(os.Args[2])
+			mutex.UserDataMutex.Unlock()
 			fmt.Println(result)
 		} else {
 			printValidCommands(command, mySVCS)
@@ -52,17 +68,24 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 
 	commandActions(command, user, mySCVS)
 
+	saveUserData()
 	if command == "add" {
 		// if its the first time using add ./main add
-		if len(user.FileNames) == 0 {
-			printValidCommands(command, mySCVS)
-			// if only the add command is used with tracked filed ./main add
-		} else if len(user.FileNames) > 0 && len(flag.Args()) == 1 {
-			fmt.Println("test")
-			// prints out all the tracked files
-			fmt.Println("Tracked files:")
-			for _, file := range user.FileNames {
-				fmt.Println(file)
+		if flag.NArg() > 1 {
+			for i := 1; i < flag.NArg(); i++ {
+				mutex.UserDataMutex.Lock()
+				_, result := user.AddAction(flag.Arg(i))
+				mutex.UserDataMutex.Unlock()
+				fmt.Println(result)
+			}
+		} else {
+			if len(user.FileNames) > 0 {
+				fmt.Println("Tracked Files:")
+				for _, file := range user.FileNames {
+					fmt.Println(file)
+				}
+			} else {
+				fmt.Println("No tracked files")
 			}
 		}
 	}
