@@ -1,7 +1,7 @@
 package datatypes
 
 import (
-	mutex "Version_Control_System/Mutex"
+	// mutex "Version_Control_System/Mutex"
 	"fmt"
 )
 
@@ -18,13 +18,13 @@ type User struct {
 func CreateUser() *User {
 	return &User{}
 }
-func (u User) isFileTracked(filename string) bool {
+func (u User) isFileTracked(filename string) (isTracked bool) {
 	for _, existingFile := range u.FileNames {
 		if filename == existingFile {
-			return true
+			return
 		}
 	}
-	return false
+	return
 }
 
 func formatOutput(fileName string, isTracked bool) string {
@@ -51,10 +51,6 @@ func containsFile(files []string, target string) bool {
 	return false
 }
 func (u *User) AddAction(fileName string) (updatedUser *User, output string) {
-	mutex := mutex.GetUserMutexData()
-	mutex.Lock()
-	defer mutex.Unlock()
-
 	fmt.Println("before")
 	if u.isFileTracked(fileName) {
 		fmt.Println("After(tracked)")
