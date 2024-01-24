@@ -51,14 +51,19 @@ func containsFile(files []string, target string) bool {
 	return false
 }
 func (u *User) AddAction(fileName string) (updatedUser *User, output string) {
-
 	mutex := mutex.GetUserMutexData()
 	mutex.Lock()
 	defer mutex.Unlock()
+
+	fmt.Println("before")
 	if u.isFileTracked(fileName) {
-		return u, formatOutput(fileName, true)
+		fmt.Println("After(tracked)")
+		output = formatOutput(fileName, true)
+		return u, output
 	}
+	fmt.Println("After (untracked)")
 	u.FileNames = append(u.FileNames, fileName)
 	output = formatOutput(fileName, false)
+	updatedUser = u
 	return
 }
