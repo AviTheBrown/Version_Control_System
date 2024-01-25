@@ -16,7 +16,12 @@ type User struct {
 }
 
 func CreateUser() *User {
-	return &User{}
+	return &User{
+		UserName: "test",
+		FileInfo: FileInfo{
+			FileNames: make([]string, 0),
+		},
+	}
 }
 func (u User) isFileTracked(filename string) (isTracked bool) {
 	for _, existingFile := range u.FileNames {
@@ -51,15 +56,7 @@ func containsFile(files []string, target string) bool {
 	return false
 }
 func (u *User) AddAction(fileName string) (updatedUser *User, output string) {
-	fmt.Println("before")
-	if u.isFileTracked(fileName) {
-		fmt.Println("After(tracked)")
-		output = formatOutput(fileName, true)
-		return u, output
-	}
-	fmt.Println("After (untracked)")
 	u.FileNames = append(u.FileNames, fileName)
-	output = formatOutput(fileName, false)
-	updatedUser = u
-	return
+	testt := "testADD"
+	return u, testt
 }
