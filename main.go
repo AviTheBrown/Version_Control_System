@@ -13,7 +13,7 @@ var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 func main() {
 	user = datatypes.CreateUser()
-	fmt.Println(user.UserName)
+	fmt.Println(user)
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
 		"add":      "Add a file to the index.",
@@ -38,9 +38,11 @@ func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) 
 		if len(os.Args) > 2 {
 			var result string
 			mutex.UserDataMutex.Lock()
-			user, result = usr.AddAction(os.Args[2])
-			mutex.UserDataMutex.Unlock()
+			defer mutex.UserDataMutex.Unlock()
+			updatedUser, result := user.AddAction(os.Args[2])
+			user = updatedUser
 			fmt.Println(result)
+			fmt.Println(user)
 		} else {
 			printValidCommands(command, mySVCS)
 		}
@@ -62,24 +64,19 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 	commandActions(command, user, mySCVS)
 
 	saveUserData()
+	mutex.UserDataMutex.Lock()
+	defer mutex.UserDataMutex.Unlock()
 	if command == "add" {
 		// if its the first time using add ./main add
-		if flag.NArg() > 1 {
-			for i := 1; i < flag.NArg(); i++ {
-				mutex.UserDataMutex.Lock()
-				_, result := user.AddAction(flag.Arg(i))
-				mutex.UserDataMutex.Unlock()
-				fmt.Println(result)
+
+		if len(user.FileNames) > 0 {
+			fmt.Println("Tracked Files:")
+			for _, file := range user.FileNames {
+				fmt.Println(file)
 			}
 		} else {
-			if len(user.FileNames) > 0 {
-				fmt.Println("Tracked Files:")
-				for _, file := range user.FileNames {
-					fmt.Println(file)
-				}
-			} else {
-				fmt.Println("No tracked files")
-			}
+			fmt.Println("No tracked files")
+
 		}
 	}
 }
