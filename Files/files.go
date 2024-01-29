@@ -7,6 +7,7 @@ import (
 )
 
 func CreateDirWithChildFiles() {
+	// create the dir
 	dirPath := "./vcs"
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
@@ -14,12 +15,14 @@ func CreateDirWithChildFiles() {
 	}
 
 	fileNames := []string{"config.tx", "index.tx"}
-	for _, filename := range fileNames {
-		filepath := dirPath + "/" + filename
+
+	// create the files and add them to the parent dir
+	for _, fileName := range fileNames {
+		filepath := dirPath + "/" + fileName
 		file, err := os.Create(filepath)
 		if err != nil {
-			fmt.Println("Error creating files.")
-			log.Fatal(err)
+			fmt.Println("error create the file.", err)
+			return
 		}
 		defer file.Close()
 	}

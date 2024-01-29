@@ -2,10 +2,10 @@ package main
 
 import (
 	datatypes "Version_Control_System/DataTypes"
+	files "Version_Control_System/Files"
 	mutex "Version_Control_System/Mutex"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -23,15 +23,10 @@ func main() {
 	}
 
 	mutex.GetUserMutexData()
+	files.CreateDirWithChildFiles()
 	processCommandLine(mySVCS, commandOrder)
 }
 
-func createDir() {
-	err := os.MkdirAll("./vcs", os.ModePerm)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 func saveUserData() {
 	mutex.UserDataMutex.Lock()
 	defer mutex.UserDataMutex.Unlock()
