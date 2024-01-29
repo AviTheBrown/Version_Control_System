@@ -5,6 +5,7 @@ import (
 	mutex "Version_Control_System/Mutex"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -13,7 +14,6 @@ var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 func main() {
 	user = datatypes.CreateUser()
-	fmt.Println(user)
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
 		"add":      "Add a file to the index.",
@@ -26,6 +26,12 @@ func main() {
 	processCommandLine(mySVCS, commandOrder)
 }
 
+func createDir() {
+	err := os.MkdirAll("./vcs", os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 func saveUserData() {
 	mutex.UserDataMutex.Lock()
 	defer mutex.UserDataMutex.Unlock()
@@ -60,23 +66,24 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 		return
 	}
 	command := flag.Arg(0)
-
 	commandActions(command, user, mySCVS)
 
 	saveUserData()
 	mutex.UserDataMutex.Lock()
 	defer mutex.UserDataMutex.Unlock()
 	if command == "add" {
-		// if its the first time using add ./main add
-
-		if len(user.FileNames) > 0 {
+		switch {
+		// if there are tracked files but you only wish to display them
+		// with only the "add" command i.e ./main add
+		case len(user.FileNames) > 0 && flag.NArg() == 1:
 			fmt.Println("Tracked Files:")
 			for _, file := range user.FileNames {
 				fmt.Println(file)
 			}
-		} else {
-			fmt.Println("No tracked files")
-
+			// if there are no files to display and only the add command is passed
+			// ./main add
+		case len(user.FileNames) == 0 && flag.NArg() == 1:
+			fmt.Println(printValidCommands(command, mySCVS))
 		}
 	}
 }
