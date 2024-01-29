@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 )
 
 type SVCS map[string]string
@@ -73,38 +72,47 @@ func (u *User) ConfigAction(userName string) string {
 	return fmt.Sprintf("The username is %s", u.UserName)
 }
 
-func containsFile(searchedFile, indexedFile string) bool {
-	file, err := os.Open(searchedFile)
+// func containsFile(searchedFile, indexedFile string) string {
+// 	file, err := os.Open(searchedFile)
+// 	if err != nil {
+// 		return indexedFile
+// 	}
+// 	defer file.Close()
+
+// 	scanner := bufio.NewScanner(file)
+// 	for scanner.Scan() {
+// 		line := scanner.Text()
+// 		if strings.Contains(line, indexedFile) {
+
+// 		}
+// 	}
+// 	if err := scanner.Err(); err != nil {
+// 		fmt.Println("there was a problem scanning the file.")
+// 	}
+// 	return true
+// }
+
+func displayFiles(filename string) {
+	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("Can't find '%v'.", searchedFile)
-		return false
+		log.Fatal(err)
 	}
-	defer file.Close()
-
 	scanner := bufio.NewScanner(file)
+	fmt.Println("Tracked files:")
 	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.Contains(line, indexedFile) {
-
-		}
+		fmt.Println(scanner.Text())
 	}
-	if err := scanner.Err(); err != nil {
-		fmt.Println("there was a problem scanning the file.")
-		return false
-	}
-	return true
 }
-
 func (u *User) AddAction(fileName string) {
-	os.Chdir("./vcs")
+
+	err := os.Chdir("./vcs")
+	if err != nil {
+		fmt.Println("there was a problem here")
+	}
 	defer os.Chdir("..")
 
-	if containsFile(fileName) {
-		formatOutput(fileName, true)
-	}
-	// for adding a file to index.txt
 	writeToFile := func() {
-		err := os.WriteFile("index.tx", []byte(fileName+"\n"), 0644)
+		err := os.WriteFile("index.txt", []byte(fileName+"\n"), 0644)
 		if err != nil {
 			fmt.Printf("unable to write to file")
 		}
@@ -120,5 +128,7 @@ func (u *User) AddAction(fileName string) {
 		}
 		formatOutput(fileName, true)
 		return true
-	}()
+	}
+	searchForFile()
+	displayFiles(fileName)
 }
