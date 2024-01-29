@@ -11,11 +11,10 @@ func CreateDirWithChildFiles() {
 	dirPath := "./vcs"
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
+		fmt.Println("there was aproble")
 		log.Fatal(err)
 	}
-
-	fileNames := []string{"config.tx", "index.tx"}
-
+	fileNames := []string{"config.txt", "index.txt"}
 	// create the files and add them to the parent dir
 	for _, fileName := range fileNames {
 		filepath := dirPath + "/" + fileName
@@ -26,22 +25,4 @@ func CreateDirWithChildFiles() {
 		}
 		defer file.Close()
 	}
-}
-func CreateFile(filePath string) (*os.File, error) {
-	createdFile, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		fmt.Println("Failed to create file")
-		return nil, err
-	}
-	return createdFile, nil
-}
-
-func ReadFile(filepath string) (*os.File, error) {
-	openedFile, err := os.Open(filepath)
-	if err != nil {
-		fmt.Println("failed to open read only file.")
-		return nil, err
-	}
-
-	return openedFile, nil
 }
