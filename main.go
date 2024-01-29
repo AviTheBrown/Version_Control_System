@@ -14,6 +14,7 @@ var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 func main() {
 	user = datatypes.CreateUser()
+	files.CreateDirWithChildFiles()
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
 		"add":      "Add a file to the index.",
@@ -22,8 +23,7 @@ func main() {
 		"checkout": "Restore a file.",
 	}
 
-	mutex.GetUserMutexData()
-	files.CreateDirWithChildFiles()
+	// mutex.GetUserMutexData()
 	processCommandLine(mySVCS, commandOrder)
 }
 
@@ -38,10 +38,7 @@ func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) 
 	case "add":
 		if len(os.Args) > 2 {
 			var result string
-			mutex.UserDataMutex.Lock()
-			defer mutex.UserDataMutex.Unlock()
-			updatedUser, result := user.AddAction(os.Args[2])
-			user = updatedUser
+			user.AddAction(os.Args[2])
 			fmt.Println(result)
 			fmt.Println(user)
 		} else {
@@ -63,7 +60,6 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 	command := flag.Arg(0)
 	commandActions(command, user, mySCVS)
 
-	saveUserData()
 	mutex.UserDataMutex.Lock()
 	defer mutex.UserDataMutex.Unlock()
 	if command == "add" {
