@@ -72,27 +72,7 @@ func (u *User) ConfigAction(userName string) string {
 	return fmt.Sprintf("The username is %s", u.UserName)
 }
 
-// func containsFile(searchedFile, indexedFile string) string {
-// 	file, err := os.Open(searchedFile)
-// 	if err != nil {
-// 		return indexedFile
-// 	}
-// 	defer file.Close()
-
-// 	scanner := bufio.NewScanner(file)
-// 	for scanner.Scan() {
-// 		line := scanner.Text()
-// 		if strings.Contains(line, indexedFile) {
-
-// 		}
-// 	}
-// 	if err := scanner.Err(); err != nil {
-// 		fmt.Println("there was a problem scanning the file.")
-// 	}
-// 	return true
-// }
-
-func displayFiles(filename string) {
+func DisplayFiles(filename string) {
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -103,8 +83,13 @@ func displayFiles(filename string) {
 		fmt.Println(scanner.Text())
 	}
 }
+func creatFile(filename string) {
+	_, err := os.Create(filename)
+	if err != nil {
+		log.Fatal("there was a error trying to create the file here:", err)
+	}
+}
 func (u *User) AddAction(fileName string) {
-
 	err := os.Chdir("./vcs")
 	if err != nil {
 		fmt.Println("there was a problem here")
@@ -112,23 +97,17 @@ func (u *User) AddAction(fileName string) {
 	defer os.Chdir("..")
 
 	writeToFile := func() {
-		err := os.WriteFile("index.txt", []byte(fileName+"\n"), 0644)
+		file, err := os.OpenFile("index.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {
 			fmt.Printf("unable to write to file")
 		}
+		defer file.Close()
+		data := []byte(fileName)
+		_, err = file.Write(data)
+		if err != nil {
+			fmt.Println("Error writing to file:", err)
+			return
+		}
 	}
 	writeToFile()
-
-	// for looking up a file name in index.tx
-	searchForFile := func() bool {
-		_, err := os.Open(fileName)
-		if err != nil {
-			formatOutput(fileName, false)
-			return false
-		}
-		formatOutput(fileName, true)
-		return true
-	}
-	searchForFile()
-	displayFiles(fileName)
 }
