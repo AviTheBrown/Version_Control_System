@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 type SVCS map[string]string
@@ -26,35 +27,15 @@ func CreateUser() *User {
 	}
 }
 func isFileTracked(filename string) bool {
-
-	var err error
-	// pwd
-	currentDir, err := os.Getwd()
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
-	// return to parent dir
-	defer func() {
-		os.Chdir(currentDir)
-		if err != nil {
-			fmt.Println("Error returning to original dir:", err)
-		}
-	}()
-
-	// move down to ./vcs
-	targetDir := "./vcs"
-	err = os.Chdir(targetDir)
+	// Move down to ./vcs
+	// Read the content of index.txt
+	fileContent, err := os.ReadFile("index.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
-	// check if the file is in ./vcs
-	_, err = os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	} else {
-		return true
-	}
 
+	// Check if the filename is present in the content
+	return strings.Contains(string(fileContent), filename)
 }
 
 func formatOutput(fileName string, isTracked bool) string {
@@ -96,6 +77,11 @@ func (u *User) AddAction(fileName string) {
 	}
 	defer os.Chdir("..")
 
+	if isFileTracked(fileName) {
+		return
+	} else {
+		u.FileNames = append(u.FileNames, fileName)
+	}
 	writeToFile := func() {
 		file, err := os.OpenFile("index.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {

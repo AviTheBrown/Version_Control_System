@@ -3,7 +3,6 @@ package main
 import (
 	datatypes "Version_Control_System/DataTypes"
 	files "Version_Control_System/Files"
-	mutex "Version_Control_System/Mutex"
 	"flag"
 	"fmt"
 	"os"
@@ -23,14 +22,9 @@ func main() {
 		"checkout": "Restore a file.",
 	}
 
-	// mutex.GetUserMutexData()
 	processCommandLine(mySVCS, commandOrder)
 }
 
-func saveUserData() {
-	mutex.UserDataMutex.Lock()
-	defer mutex.UserDataMutex.Unlock()
-}
 func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) {
 	switch command {
 	case "config":
@@ -60,8 +54,6 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 	command := flag.Arg(0)
 	commandActions(command, user, mySCVS)
 
-	mutex.UserDataMutex.Lock()
-	defer mutex.UserDataMutex.Unlock()
 	if command == "add" {
 		switch {
 		// if there are tracked files but you only wish to display them
