@@ -5,37 +5,57 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 type SVCS map[string]string
 
-type FileInfo struct {
-	FileNames []string
-}
 type User struct {
 	UserName string
-	FileInfo
+	Files    []string
 }
 
 func CreateUser() *User {
-	return &User{
-		UserName: "Default Name",
-		FileInfo: FileInfo{
-			FileNames: make([]string, 0),
-		},
+	user := &User{
+		UserName: "Name",
+		Files:    loadTrackedFiles("vcs/index.txt"),
 	}
+	return user
+}
+
+func loadTrackedFiles(filename string) []string {
+	content, err := os.ReadFile("vcs/index.txt")
+	if err != nil {
+		fmt.Printf("Error reading tracked files %v\n", err)
+		return nil
+	}
+	return strings.Split(string(content), "\n")
+}
+func (u *User) AddAction(filename string) {
+	if isFileTracked(filename) {
+		fmt.Println(formatOutput(filename, true))
+		return
+	}
+	u.Files = append(u.Files, filename)
+	appendFile("vcs/index.txt", filename)
+	fmt.Println(formatOutput(filename, false))
+
 }
 func isFileTracked(filename string) bool {
-	// Move down to ./vcs
-	// Read the content of index.txt
-	fileContent, err := os.ReadFile("index.txt")
-	if err != nil {
-		log.Fatal(err)
+	for _, trackedFile := range loadTrackedFiles("vcs/index.txt") {
+		// if the base files are the same then the file is tracked.
+		if filepath.Base(trackedFile) == filepath.Base(filename) {
+			return true
+		}
 	}
-
-	// Check if the filename is present in the content
-	return strings.Contains(string(fileContent), filename)
+	return false
+}
+func appendFile(filename, content string) {
+	err := os.WriteFile(filename, []byte(content), os.ModeAppend)
+	if err != nil {
+		fmt.Printf("Error writing to file %v\n", err)
+	}
 }
 
 func formatOutput(fileName string, isTracked bool) string {
@@ -69,31 +89,4 @@ func creatFile(filename string) {
 	if err != nil {
 		log.Fatal("there was a error trying to create the file here:", err)
 	}
-}
-func (u *User) AddAction(fileName string) {
-	err := os.Chdir("./vcs")
-	if err != nil {
-		fmt.Println("there was a problem here")
-	}
-	defer os.Chdir("..")
-
-	if isFileTracked(fileName) {
-		return
-	} else {
-		u.FileNames = append(u.FileNames, fileName)
-	}
-	writeToFile := func() {
-		file, err := os.OpenFile("index.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
-		if err != nil {
-			fmt.Printf("unable to write to file")
-		}
-		defer file.Close()
-		data := []byte(fileName)
-		_, err = file.Write(data)
-		if err != nil {
-			fmt.Println("Error writing to file:", err)
-			return
-		}
-	}
-	writeToFile()
 }
