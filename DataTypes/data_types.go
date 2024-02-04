@@ -22,8 +22,20 @@ func CreateUser() *User {
 	return user
 }
 
-func (u *User) LoadTrackedFiles(filename string) []string {
-	content, err := os.ReadFile("vcs/index.txt")
+const (
+	configFilePath = "vcs/config.txt"
+	indexFilePath  = "vcs/index.txt"
+)
+
+func (u *User) LoadUserName(filepath string) {
+	content, err := os.ReadFile(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	u.UserName = string(content)
+}
+func (u *User) LoadTrackedFiles(filepath string) []string {
+	content, err := os.ReadFile(filepath)
 	if err != nil {
 		fmt.Printf("Error reading tracked files %v\n", err)
 		return nil
@@ -35,13 +47,13 @@ func (u *User) AddAction(filename string) {
 		fmt.Println(formatOutput(filename, true))
 		return
 	}
-	appendToFile("vcs/index.txt", filename)
+	appendToFile(indexFilePath, filename)
 	u.Files = append(u.Files, filename)
 	fmt.Println(formatOutput(filename, false))
 
 }
 func (u *User) isFileTracked(filename string) bool {
-	trackedFiles := u.LoadTrackedFiles("vcs/index.txt")
+	trackedFiles := u.LoadTrackedFiles(indexFilePath)
 	for _, trackedFile := range trackedFiles {
 		if trackedFile == filename {
 			return true
@@ -50,15 +62,24 @@ func (u *User) isFileTracked(filename string) bool {
 	return false
 }
 
-func appendToFile(filename, content string) {
-	file, err := os.OpenFile("./vcs/index.txt", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
-	if err != nil {
-		fmt.Printf("Error writing to file %v\n", err)
-	}
-	defer file.Close()
-	_, err = fmt.Fprint(file, content, "\n")
-	if err != nil {
-		log.Fatal(err)
+func appendToFile(filePath, content string) {
+	switch {
+	case filePath == configFilePath:
+		err := os.WriteFile(filePath, []byte(content), os.ModePerm)
+		if err != nil {
+			fmt.Println("Error writing to file.")
+		}
+	case filePath == indexFilePath:
+
+		file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+		if err != nil {
+			fmt.Printf("Error writing to file %v\n", err)
+		}
+		defer file.Close()
+		_, err = fmt.Fprint(file, content, "\n")
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -70,14 +91,11 @@ func formatOutput(fileName string, isTracked bool) string {
 }
 
 func (u *User) ConfigAction(userName string) string {
-	if u.UserName == userName {
-		return fmt.Sprintf("The username is %s", u.UserName)
-	}
-	u.UserName = userName
-	return fmt.Sprintf("The username is %s", u.UserName)
+	appendToFile(configFilePath, userName)
+	return fmt.Sprintf("The username is %s.", userName)
 }
 
-func DisplayFiles(filename string) {
+func displayFiles(filename string) {
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)

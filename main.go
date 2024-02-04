@@ -14,6 +14,7 @@ var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 func main() {
 	user = datatypes.CreateUser()
 	user.Files = user.LoadTrackedFiles("vcs/index.txt")
+	user.LoadUserName(".vcs/config.txt")
 
 	_, err := os.Stat("vcs")
 	if err != nil {
@@ -37,7 +38,12 @@ func main() {
 func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) {
 	switch command {
 	case "config":
-		fmt.Println(usr.ConfigAction(os.Args[1]))
+		if len(os.Args) > 2 {
+			fmt.Println(user.ConfigAction(os.Args[2]))
+		} else if user.UserName == "" {
+			fmt.Println("Please tell me who you are.")
+		} else {
+		}
 	case "add":
 		if len(os.Args) > 2 {
 			var result string
