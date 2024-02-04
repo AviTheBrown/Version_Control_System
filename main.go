@@ -43,7 +43,6 @@ func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) 
 			var result string
 			user.AddAction(os.Args[2])
 			fmt.Println(result)
-			fmt.Println(user)
 		} else {
 			printValidCommands(command, mySVCS)
 		}
