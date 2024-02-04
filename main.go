@@ -15,9 +15,11 @@ func main() {
 	user = datatypes.CreateUser()
 	_, err := os.Stat("vcs")
 	if err != nil {
-		os.IsNotExist(err)
+		if os.IsNotExist(err) {
+			files.CreateDirWithChildFiles()
+		}
 	} else {
-		files.CreateDirWithChildFiles()
+
 	}
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
