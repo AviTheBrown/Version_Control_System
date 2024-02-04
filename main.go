@@ -13,6 +13,8 @@ var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 func main() {
 	user = datatypes.CreateUser()
+	user.Files = user.LoadTrackedFiles("vcs/index.txt")
+
 	_, err := os.Stat("vcs")
 	if err != nil {
 		if os.IsNotExist(err) {
