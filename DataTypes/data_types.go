@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -19,12 +18,11 @@ type User struct {
 func CreateUser() *User {
 	user := &User{
 		UserName: "Name",
-		Files:    loadTrackedFiles("vcs/index.txt"),
 	}
 	return user
 }
 
-func loadTrackedFiles(filename string) []string {
+func (u *User) LoadTrackedFiles(filename string) []string {
 	content, err := os.ReadFile("vcs/index.txt")
 	if err != nil {
 		fmt.Printf("Error reading tracked files %v\n", err)
@@ -33,28 +31,34 @@ func loadTrackedFiles(filename string) []string {
 	return strings.Split(string(content), "\n")
 }
 func (u *User) AddAction(filename string) {
-	if isFileTracked(filename) {
+	if u.isFileTracked(filename) {
 		fmt.Println(formatOutput(filename, true))
 		return
 	}
+	appendToFile("vcs/index.txt", filename)
 	u.Files = append(u.Files, filename)
-	appendFile("vcs/index.txt", filename)
 	fmt.Println(formatOutput(filename, false))
 
 }
-func isFileTracked(filename string) bool {
-	for _, trackedFile := range loadTrackedFiles("vcs/index.txt") {
-		// if the base files are the same then the file is tracked.
-		if filepath.Base(trackedFile) == filepath.Base(filename) {
+func (u *User) isFileTracked(filename string) bool {
+	trackedFiles := u.LoadTrackedFiles("vcs/index.txt")
+	for _, trackedFile := range trackedFiles {
+		if trackedFile == filename {
 			return true
 		}
 	}
 	return false
 }
-func appendFile(filename, content string) {
-	err := os.WriteFile(filename, []byte(content), os.ModeAppend)
+
+func appendToFile(filename, content string) {
+	file, err := os.OpenFile("./vcs/index.txt", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		fmt.Printf("Error writing to file %v\n", err)
+	}
+	defer file.Close()
+	_, err = fmt.Fprint(file, content, "\n")
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
