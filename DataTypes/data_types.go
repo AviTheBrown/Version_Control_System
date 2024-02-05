@@ -1,7 +1,6 @@
 package datatypes
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -93,22 +92,4 @@ func formatOutput(fileName string, isTracked bool) string {
 func (u *User) ConfigAction(userName string) string {
 	appendToFile(configFilePath, userName)
 	return fmt.Sprintf("The username is %s.", userName)
-}
-
-func displayFiles(filename string) {
-	file, err := os.Open(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	scanner := bufio.NewScanner(file)
-	fmt.Println("Tracked files:")
-	for scanner.Scan() {
-		fmt.Println(scanner.Text())
-	}
-}
-func creatFile(filename string) {
-	_, err := os.Create(filename)
-	if err != nil {
-		log.Fatal("there was a error trying to create the file here:", err)
-	}
 }
