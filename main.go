@@ -16,13 +16,8 @@ func main() {
 	user.Files = user.LoadTrackedFiles("vcs/index.txt")
 	user.LoadUserName("vcs/config.txt")
 
-	_, err := os.Stat("vcs")
-	if err != nil {
-		if os.IsNotExist(err) {
-			files.CreateDirWithChildFiles()
-		}
-	} else {
-
+	if _, err := os.Stat("vcs"); os.IsNotExist(err) {
+		files.CreateDirWithChildFiles()
 	}
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
