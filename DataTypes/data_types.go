@@ -15,9 +15,7 @@ type User struct {
 }
 
 func CreateUser() *User {
-	user := &User{
-		UserName: "Name",
-	}
+	user := &User{}
 	return user
 }
 
