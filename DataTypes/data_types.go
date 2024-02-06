@@ -15,7 +15,9 @@ type User struct {
 }
 
 func CreateUser() *User {
-	user := &User{}
+	user := &User{
+		Files: []string{},
+	}
 	return user
 }
 
@@ -37,9 +39,16 @@ func (u *User) LoadTrackedFiles(filepath string) []string {
 		fmt.Printf("Error reading tracked files %v\n", err)
 		return nil
 	}
-	return strings.Split(string(content), "\n")
+	files := strings.FieldsFunc(string(content), func(r rune) bool {
+		return r == '\n' || r == '\r'
+	})
+	return files
 }
 func (u *User) AddAction(filename string) {
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		fmt.Printf("File '%s' does not exist\n", filename)
+		return
+	}
 	if u.isFileTracked(filename) {
 		fmt.Println(formatOutput(filename, true))
 		return
