@@ -13,12 +13,12 @@ var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 func main() {
 	user = datatypes.CreateUser()
-	user.Files = user.LoadTrackedFiles("vcs/index.txt")
-	user.LoadUserName("vcs/config.txt")
-
 	if _, err := os.Stat("vcs"); os.IsNotExist(err) {
 		files.CreateDirWithChildFiles()
 	}
+	user.Files = user.LoadTrackedFiles("vcs/index.txt")
+	user.LoadUserName("vcs/config.txt")
+
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
 		"add":      "Add a file to the index.",
@@ -45,7 +45,6 @@ func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) 
 			user.AddAction(os.Args[2])
 			fmt.Println(result)
 		} else {
-			printValidCommands(command, mySVCS)
 		}
 	default:
 		defaultString := fmt.Sprintf(printValidCommands(command, mySVCS))
@@ -67,15 +66,16 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 		switch {
 		// if there are tracked files but you only wish to display them
 		// with only the "add" command i.e ./main add
+		case len(user.Files) == 0 && flag.NArg() == 1:
+			fmt.Println(printValidCommands(command, mySCVS))
 		case len(user.Files) > 0 && flag.NArg() == 1:
+			fmt.Println("test0")
 			fmt.Println("Tracked Files:")
 			for _, file := range user.Files {
 				fmt.Println(file)
 			}
 			// if there are no files to display and only the add command is passed
 			// ./main add
-		case len(user.Files) == 0 && flag.NArg() == 1:
-			fmt.Println(printValidCommands(command, mySCVS))
 		}
 	}
 }
