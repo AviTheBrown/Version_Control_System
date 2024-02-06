@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func CreateDirWithChildFiles() {
@@ -17,7 +18,7 @@ func CreateDirWithChildFiles() {
 	fileNames := []string{"config.txt", "index.txt"}
 	// create the files and add them to the parent dir
 	for _, fileName := range fileNames {
-		filepath := dirPath + "/" + fileName
+		filepath := filepath.Join(dirPath, fileName)
 		file, err := os.Create(filepath)
 		if err != nil {
 			fmt.Println("error create the file.", err)
