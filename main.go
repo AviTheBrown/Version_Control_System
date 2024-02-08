@@ -13,6 +13,7 @@ var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 func main() {
 	user = datatypes.CreateUser()
+
 	if _, err := os.Stat("vcs"); os.IsNotExist(err) {
 		files.CreateDirWithChildFiles()
 	}
@@ -68,14 +69,12 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 		// with only the "add" command i.e ./main add
 		case len(user.Files) == 0 && flag.NArg() == 1:
 			fmt.Println(printValidCommands(command, mySCVS))
+			// if there are file that are added and you wish to display them to stout
 		case len(user.Files) > 0 && flag.NArg() == 1:
-			fmt.Println("test0")
 			fmt.Println("Tracked Files:")
 			for _, file := range user.Files {
 				fmt.Println(file)
 			}
-			// if there are no files to display and only the add command is passed
-			// ./main add
 		}
 	}
 }
