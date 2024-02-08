@@ -46,7 +46,7 @@ func (u *User) LoadTrackedFiles(filepath string) []string {
 }
 func (u *User) AddAction(filename string) {
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		fmt.Printf("File '%s' does not exist\n", filename)
+		fmt.Printf("Can't find '%s'.\n", filename)
 		return
 	}
 	if u.isFileTracked(filename) {
