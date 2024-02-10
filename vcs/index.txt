@@ -1,7 +1,1 @@
-rust.cpp
-go.cpp
-hello.go
-hello.swift
-hello.zig
-hello.zig
-thiss.cpp
+main.go
