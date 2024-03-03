@@ -15,7 +15,7 @@ func CreateDirWithChildFiles() {
 		fmt.Println("there was aproble")
 		log.Fatal(err)
 	}
-	fileNames := []string{"config.txt", "index.txt"}
+	fileNames := []string{"config.txt", "index.txt", "commits"}
 	// create the files and add them to the parent dir
 	for _, fileName := range fileNames {
 		filepath := filepath.Join(dirPath, fileName)
