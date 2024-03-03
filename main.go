@@ -47,6 +47,7 @@ func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) 
 			fmt.Println(result)
 		} else {
 		}
+	case "commit":
 	default:
 		defaultString := fmt.Sprintf(printValidCommands(command, mySVCS))
 		fmt.Println(defaultString)
