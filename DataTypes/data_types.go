@@ -11,12 +11,19 @@ type SVCS map[string]string
 
 type User struct {
 	UserName string
-	Files    []string
+	FileInfo Files
+}
+type Files struct {
+	FileNames []string
+	CommitID  [32]byte
 }
 
 func CreateUser() *User {
 	user := &User{
-		Files: []string{},
+		FileInfo: Files{
+			FileNames: []string{},
+			CommitID:  [32]byte{},
+		},
 	}
 	return user
 }
@@ -54,7 +61,7 @@ func (u *User) AddAction(filename string) {
 		return
 	}
 	appendToFile(indexFilePath, filename)
-	u.Files = append(u.Files, filename)
+	u.FileInfo.FileNames = append(u.FileInfo.FileNames, filename)
 	fmt.Println(formatOutput(filename, false))
 
 }
