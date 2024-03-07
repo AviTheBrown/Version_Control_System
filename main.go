@@ -3,9 +3,12 @@ package main
 import (
 	datatypes "Version_Control_System/DataTypes"
 	files "Version_Control_System/Files"
+	hashing "Version_Control_System/Hashing"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 )
 
 var user *datatypes.User
@@ -48,12 +51,32 @@ func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) 
 		} else {
 		}
 	case "commit":
-		fmt.Println("test")
-		// if len(os.Args) > 2 {
-		// 	commitMessage := os.Args[2]
-		// 	hashing.GenerateCommitHashID(commitMessage)
+		var hashstring string
+		var err error
+		if len(os.Args) > 2 {
+			commitMessage := os.Args[2]
+			hashstring, err = hashing.GenerateCommitHashID(commitMessage)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		commitDir := filepath.Join(".", "vcs", "commits")
+		commitsPath := filepath.Join(commitDir, hashstring)
 
-		// }
+		_, err = os.Stat(commitsPath)
+
+		if os.IsNotExist(err) {
+			err := os.MkdirAll(commitsPath, 0755)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("Changes are committed")
+
+		} else if err != nil {
+			log.Fatal(err)
+		} else {
+			fmt.Printf("Directory %s already exist", hashstring)
+		}
 
 	case "log":
 	default:
