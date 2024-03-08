@@ -3,12 +3,11 @@ package hashing
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 )
 
 func GenerateCommitHashID(commitMessage string) (string, error) {
 	if commitMessage == "" {
-		return "", errors.New("Commit messages cannot be empty.")
+		return "Message was not passed.", nil
 	}
 	sha256Hash := sha256.New()
 	sha256Hash.Write([]byte(commitMessage))
