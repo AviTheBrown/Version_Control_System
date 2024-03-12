@@ -29,8 +29,8 @@ func CreateUser() *User {
 }
 
 const (
-	configFilePath = "vcs/config.txt"
-	indexFilePath  = "vcs/index.txt"
+	CONFIGFILEPATH = "vcs/config.txt"
+	INDEXFILEPATH  = "vcs/index.txt"
 )
 
 func (u *User) LoadUserName(filepath string) {
@@ -60,13 +60,13 @@ func (u *User) AddAction(filename string) {
 		fmt.Println(formatOutput(filename, true))
 		return
 	}
-	appendToFile(indexFilePath, filename)
+	appendToFile(INDEXFILEPATH, filename)
 	u.FileInfo.FileNames = append(u.FileInfo.FileNames, filename)
 	fmt.Println(formatOutput(filename, false))
 
 }
 func (u *User) isFileTracked(filename string) bool {
-	trackedFiles := u.LoadTrackedFiles(indexFilePath)
+	trackedFiles := u.LoadTrackedFiles(INDEXFILEPATH)
 	for _, trackedFile := range trackedFiles {
 		if trackedFile == filename {
 			return true
@@ -77,12 +77,12 @@ func (u *User) isFileTracked(filename string) bool {
 
 func appendToFile(filePath, content string) {
 	switch {
-	case filePath == configFilePath:
+	case filePath == CONFIGFILEPATH:
 		err := os.WriteFile(filePath, []byte(content), os.ModePerm)
 		if err != nil {
 			fmt.Println("Error writing to file.")
 		}
-	case filePath == indexFilePath:
+	case filePath == INDEXFILEPATH:
 
 		file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 		if err != nil {
@@ -104,6 +104,6 @@ func formatOutput(fileName string, isTracked bool) string {
 }
 
 func (u *User) ConfigAction(userName string) string {
-	appendToFile(configFilePath, userName)
+	appendToFile(CONFIGFILEPATH, userName)
 	return fmt.Sprintf("The username is %s.", userName)
 }

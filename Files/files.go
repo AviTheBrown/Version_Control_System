@@ -1,6 +1,7 @@
 package files
 
 import (
+	datatypes "Version_Control_System/DataTypes"
 	"fmt"
 	"log"
 	"os"
@@ -38,28 +39,50 @@ func CreateDirWithChildFiles() {
 	}
 }
 
-func creatHashDir(hash string) {
-	startingDir, _ := os.Getwd()
-	fmt.Println(startingDir)
-	// defer os.Chdir(startingDir)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	fmt.Println("There was a problem retreiving the PWD")
-	// 	return
-	// }
+func CreatHashDir(commitMsg string, hashString string, user datatypes.User) {
+	var err error
+	commitDir := filepath.Join(".", "vcs", "commits")
+	commitsPath := filepath.Join(commitDir, hashString)
 
-	// fmt.Printf("Current directory is: %v", startingDir)
-	// commitDir := ".vcs/commits"
-	// err = os.Chdir(commitDir)
-	// if err != nil {
-	// 	fmt.Println("There was a problem changing directories.")
-	// 	return
-	// }
-	// _, err = os.Stat(hash)
-	// if err != nil {
-	// 	if os.IsNotExist(err) {
-	// 		err = os.Mkdir(hash, 0755)
-	// 	}
-	// }
+	_, err = os.Stat(commitsPath)
 
+	if err == nil {
+		fmt.Println("commits already committed")
+	} else if os.IsNotExist(err) {
+		err := os.MkdirAll(commitsPath, 0755)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Changes are committed")
+
+	} else {
+		log.Fatal(err)
+	}
+	for _, file := range user.FileInfo.FileNames {
+		sourceIndexedFilePath := datatypes.INDEXFILEPATH
+		// sourceConfigFilePath := datatypes.CONFIGFILEPATH
+		copiedIndexedFilePath := filepath.Join(commitsPath, file)
+		_, err := os.Stat(copiedIndexedFilePath)
+
+		if err == nil {
+			fmt.Println("file already created in the corresponding commit dir")
+		} else if os.IsNotExist(err) {
+
+			data, err := os.ReadFile(sourceIndexedFilePath)
+			if err != nil {
+				fmt.Println("Error reading file")
+				return
+			}
+
+			err = os.WriteFile(copiedIndexedFilePath, data, 0644)
+			if err != nil {
+				fmt.Println("had a problem createing file in commits dir.")
+				log.Fatal(err)
+			}
+		}
+	}
+	fmt.Println("done")
+	fmt.Println("Files after:")
+	fmt.Println(user.FileInfo.FileNames)
+	fmt.Printf("the hash is: %v", hashString)
 }
