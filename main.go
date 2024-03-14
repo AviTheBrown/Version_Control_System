@@ -16,14 +16,13 @@ var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 func main() {
 	user = datatypes.CreateUser()
 
-	if _, err := os.Stat("vcs"); os.IsNotExist(err) {
+	if !files.AllFilesCreated() {
 		files.CreateDirWithChildFiles()
 	}
 	user.FileInfo.FileNames = user.LoadTrackedFiles("vcs/index.txt")
-	user.LoadUserName("vcs/config.txt")
+	username := user.LoadUserName("vcs/config.txt")
+	fmt.Println(username)
 
-	fmt.Println("Files Before Commit:")
-	fmt.Println(user.FileInfo.FileNames)
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
 		"add":      "Add a file to the index.",
@@ -31,7 +30,6 @@ func main() {
 		"commit":   "Save changes.",
 		"checkout": "Restore a file.",
 	}
-
 	processCommandLine(mySVCS, commandOrder)
 }
 
@@ -85,7 +83,6 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 	}
 	command := flag.Arg(0)
 	commandActions(command, user, mySCVS)
-
 	if command == "add" {
 		switch {
 		// if there are tracked files but you only wish to display them
