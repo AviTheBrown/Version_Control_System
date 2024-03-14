@@ -8,6 +8,16 @@ import (
 	"path/filepath"
 )
 
+func AllFilesCreated() bool {
+	fileNames := []string{"config.txt", "index.txt", "log.txt"}
+	for _, fileName := range fileNames {
+		filePath := filepath.Join("vcs", fileName)
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
+}
 func CreateDirWithChildFiles() {
 	// create the dir
 	dirPath := "./vcs"
@@ -19,67 +29,68 @@ func CreateDirWithChildFiles() {
 
 	commitDir := "commits"
 	commitDirPath := filepath.Join(dirPath, commitDir)
+	fmt.Println("commits dir path files.go")
 	fmt.Println(commitDirPath)
 	err = os.Mkdir(commitDirPath, 0755)
-	if err != nil {
+	if err != nil && !os.IsExist(err) {
 		fmt.Println("Error creating commits directory.")
 		return
 	}
 
-	fileNames := []string{"config.txt", "index.txt"}
+	fileNames := []string{"config.txt", "index.txt", "log.txt"}
 	// create the files and add them to the parent dir
 	for _, fileName := range fileNames {
 		filepath := filepath.Join(dirPath, fileName)
-		file, err := os.Create(filepath)
-		if err != nil {
-			fmt.Println("error creating the file.", err)
-			return
+		_, err := os.Stat(filepath)
+		if os.IsNotExist(err) {
+			file, err := os.Create(filepath)
+			if err != nil {
+				fmt.Println("error creating the file.", err)
+				return
+			}
+			defer file.Close()
 		}
-		defer file.Close()
 	}
 }
 
 func CreatHashDir(commitMsg string, hashString string, user datatypes.User) {
 	var err error
+	// vcs/commits
 	commitDir := filepath.Join(".", "vcs", "commits")
-	commitsPath := filepath.Join(commitDir, hashString)
+	// vcs/commits/<hashString>
+	commitHashDir := filepath.Join(commitDir, hashString)
 
-	_, err = os.Stat(commitsPath)
+	_, err = os.Stat(commitHashDir)
 
 	if err == nil {
-		fmt.Println("commits already committed")
+		fmt.Println("Commits already committed")
+		return
 	} else if os.IsNotExist(err) {
-		err := os.MkdirAll(commitsPath, 0755)
+		err := os.MkdirAll(commitHashDir, 0755)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Changes are committed")
+		fmt.Println("Commit Hash Dir Created.")
 
 	} else {
 		log.Fatal(err)
 	}
+	// _, indexFile := filepath.Split(datatypes.INDEXFILEPATH)
 	for _, file := range user.FileInfo.FileNames {
-		sourceIndexedFilePath := datatypes.INDEXFILEPATH
-		// sourceConfigFilePath := datatypes.CONFIGFILEPATH
-		copiedIndexedFilePath := filepath.Join(commitsPath, file)
-		_, err := os.Stat(copiedIndexedFilePath)
+		// vcs/commits/<hashDir>/file.txt
+		completedHashDirFilePath := filepath.Join(commitHashDir, file)
+		_, err := os.Stat(completedHashDirFilePath)
 
 		if err == nil {
 			fmt.Println("file already created in the corresponding commit dir")
-		} else if os.IsNotExist(err) {
-
-			data, err := os.ReadFile(sourceIndexedFilePath)
+		} else {
+			err := os.MkdirAll(completedHashDirFilePath, 0755)
 			if err != nil {
-				fmt.Println("Error reading file")
-				return
-			}
-
-			err = os.WriteFile(copiedIndexedFilePath, data, 0644)
-			if err != nil {
-				fmt.Println("had a problem createing file in commits dir.")
-				log.Fatal(err)
+				fmt.Println("There was a problem creating the completed path.")
 			}
 		}
+		fmt.Printf("%s: was added to the hashDir\n", file)
+
 	}
 	fmt.Println("done")
 	fmt.Println("Files after:")
