@@ -15,14 +15,13 @@ type User struct {
 }
 type Files struct {
 	FileNames []string
-	CommitID  [32]byte
+	FileHash  string
 }
 
 func CreateUser() *User {
 	user := &User{
 		FileInfo: Files{
 			FileNames: []string{},
-			CommitID:  [32]byte{},
 		},
 	}
 	return user
@@ -33,12 +32,13 @@ const (
 	INDEXFILEPATH  = "vcs/index.txt"
 )
 
-func (u *User) LoadUserName(filepath string) {
+func (u *User) LoadUserName(filepath string) string {
 	content, err := os.ReadFile(filepath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	u.UserName = string(content)
+	return u.UserName
 }
 func (u *User) LoadTrackedFiles(filepath string) []string {
 	content, err := os.ReadFile(filepath)
