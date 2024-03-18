@@ -14,14 +14,12 @@ var user *datatypes.User
 var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 func main() {
-	user = datatypes.CreateUser()
+	user, _ = datatypes.CreateUser()
 
 	if !files.AllFilesCreated() {
-		files.CreateDirWithChildFiles()
+		files.CreateVCSDirWithChildFiles()
 	}
-	user.FileInfo.FileNames = user.LoadTrackedFiles("vcs/index.txt")
-	username := user.LoadUserName("vcs/config.txt")
-	fmt.Println(username)
+	user.LoadTrackedFiles("vcs/index.txt")
 
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
@@ -31,6 +29,11 @@ func main() {
 		"checkout": "Restore a file.",
 	}
 	processCommandLine(mySVCS, commandOrder)
+	fmt.Println("tessst:")
+	for _, file := range user.FileMeta {
+		fmt.Println("in Loop")
+		fmt.Println(string(file.FileData))
+	}
 }
 
 func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) {
@@ -87,13 +90,14 @@ func processCommandLine(mySCVS datatypes.SVCS, svcsOrder []string) {
 		switch {
 		// if there are tracked files but you only wish to display them
 		// with only the "add" command i.e ./main add
-		case len(user.FileInfo.FileNames) == 0 && flag.NArg() == 1:
+		case len(user.FileMeta) == 0 && flag.NArg() == 1:
 			fmt.Println(printValidCommands(command, mySCVS))
 			// if there are file that are added and you wish to display them to stout
-		case len(user.FileInfo.FileNames) > 0 && flag.NArg() == 1:
+		case len(user.FileMeta) > 0 && flag.NArg() == 1:
 			fmt.Println("Tracked Files:")
-			for _, file := range user.FileInfo.FileNames {
-				fmt.Println(file)
+			for _, file := range user.FileMeta {
+				fileData := file.FileName
+				fmt.Println(fileData)
 			}
 		}
 	}

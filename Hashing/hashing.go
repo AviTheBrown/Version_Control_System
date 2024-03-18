@@ -5,30 +5,32 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"io"
 	"log"
 	"os"
 )
 
-func GenerateHashForFiles(files []string, user datatypes.User) string {
+func gernerateHashForFileMinor(fileData []byte) (string, error) {
 	sha256Hash := sha256.New()
-	var fileHashString string
+	sha256Hash.Write(fileData)
+	sha256HashValue := sha256Hash.Sum(nil)
+	filehash := hex.EncodeToString(sha256HashValue)
+	return filehash, nil
+}
+func GenerateHashForFiles(files []string, user *datatypes.User) {
 	for _, file := range files {
-		file, err := os.Open(file)
+		fileData, err := os.ReadFile(file)
 		if err != nil {
 			fmt.Println("There was a problem opening the file.")
 			log.Fatal(err)
 		}
-		if _, err := io.Copy(sha256Hash, file); err != nil {
-			fmt.Println("There was a problem hashing the file.")
-			log.Fatal()
-		}
-		sha256HashValue := sha256Hash.Sum(nil)
-		fileHashString = hex.EncodeToString(sha256HashValue)
-		user.FileInfo.FileHash = fileHashString
 
+		fileHashString, err := gernerateHashForFileMinor(fileData)
+		if err != nil {
+			fmt.Println("There was a problem create the hash.")
+			log.Fatal(err)
+		}
+		user.AddFileToMeta(file, fileData, fileHashString)
 	}
-	return fileHashString
 }
 func GenerateCommitHashID(commitMessage string) (string, error) {
 	if commitMessage == "" {

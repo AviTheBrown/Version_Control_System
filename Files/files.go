@@ -18,7 +18,7 @@ func AllFilesCreated() bool {
 	}
 	return true
 }
-func CreateDirWithChildFiles() {
+func CreateVCSDirWithChildFiles() {
 	// create the dir
 	dirPath := "./vcs"
 	err := os.MkdirAll(dirPath, os.ModePerm)
@@ -29,8 +29,6 @@ func CreateDirWithChildFiles() {
 
 	commitDir := "commits"
 	commitDirPath := filepath.Join(dirPath, commitDir)
-	fmt.Println("commits dir path files.go")
-	fmt.Println(commitDirPath)
 	err = os.Mkdir(commitDirPath, 0755)
 	if err != nil && !os.IsExist(err) {
 		fmt.Println("Error creating commits directory.")
@@ -53,6 +51,13 @@ func CreateDirWithChildFiles() {
 	}
 }
 
+func displayFileInfor(user *datatypes.User) {
+	fmt.Println("files:")
+	for _, file := range user.FileMeta {
+		fmt.Println("the file name is :", file.FileName)
+		fmt.Println("the file hash is :", file.FileHash)
+	}
+}
 func CreatHashDir(commitMsg string, hashString string, user datatypes.User) {
 	var err error
 	// vcs/commits
@@ -75,11 +80,21 @@ func CreatHashDir(commitMsg string, hashString string, user datatypes.User) {
 	} else {
 		log.Fatal(err)
 	}
-	// _, indexFile := filepath.Split(datatypes.INDEXFILEPATH)
-	for _, file := range user.FileInfo.FileNames {
+
+	//creates the files that are in index.txt and add them to hashed commits dir
+	for _, file := range user.FileMeta {
 		// vcs/commits/<hashDir>/file.txt
-		completedHashDirFilePath := filepath.Join(commitHashDir, file)
-		_, err := os.Stat(completedHashDirFilePath)
+		// file, _ := os.Open()
+		fmt.Println("the file name is:")
+		fmt.Println(file.FileName)
+		completedHashDirFilePath := filepath.Join(commitHashDir, file.FileName)
+		err := os.WriteFile(completedHashDirFilePath, file.FileData, 0655)
+		if err != nil {
+			fmt.Println("Error writting to file.")
+			continue
+		}
+		fmt.Printf("%s: was written to the hashDir", file.FileName)
+		_, err = os.Stat(completedHashDirFilePath)
 
 		if err == nil {
 			fmt.Println("file already created in the corresponding commit dir")
@@ -94,6 +109,6 @@ func CreatHashDir(commitMsg string, hashString string, user datatypes.User) {
 	}
 	fmt.Println("done")
 	fmt.Println("Files after:")
-	fmt.Println(user.FileInfo.FileNames)
+	fmt.Println(user.FileMeta)
 	fmt.Printf("the hash is: %v", hashString)
 }

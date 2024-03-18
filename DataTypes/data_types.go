@@ -1,6 +1,8 @@
 package datatypes
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -11,20 +13,25 @@ type SVCS map[string]string
 
 type User struct {
 	UserName string
-	FileInfo Files
+	FileMeta []File
 }
-type Files struct {
-	FileNames []string
-	FileHash  string
+type File struct {
+	FileName string
+	FileData []byte
+	FileHash string
 }
 
-func CreateUser() *User {
-	user := &User{
-		FileInfo: Files{
-			FileNames: []string{},
-		},
+func CreateUser() (*User, error) {
+	userName, err := os.ReadFile(CONFIGFILEPATH)
+	if err == nil {
+		user := &User{
+			UserName: string(userName),
+			FileMeta: make([]File, 0),
+		}
+		return user, nil
+	} else {
+		return nil, fmt.Errorf("Error opening up CONFIG_FILE_PATH")
 	}
-	return user
 }
 
 const (
@@ -32,13 +39,20 @@ const (
 	INDEXFILEPATH  = "vcs/index.txt"
 )
 
-func (u *User) LoadUserName(filepath string) string {
+func (u *User) AddFileToMeta(filename string, fileData []byte, hash string) {
+	file := File{
+		FileName: filename,
+		FileData: fileData,
+		FileHash: hash,
+	}
+	u.FileMeta = append(u.FileMeta, file)
+}
+func (u *User) LoadUserName(filepath string) {
 	content, err := os.ReadFile(filepath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	u.UserName = string(content)
-	return u.UserName
 }
 func (u *User) LoadTrackedFiles(filepath string) []string {
 	content, err := os.ReadFile(filepath)
@@ -56,13 +70,39 @@ func (u *User) AddAction(filename string) {
 		fmt.Printf("Can't find '%s'.\n", filename)
 		return
 	}
+
 	if u.isFileTracked(filename) {
 		fmt.Println(formatOutput(filename, true))
 		return
 	}
-	appendToFile(INDEXFILEPATH, filename)
-	u.FileInfo.FileNames = append(u.FileInfo.FileNames, filename)
+
+	// Open the file in append mode
+	indexFile, err := os.OpenFile(INDEXFILEPATH, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0655)
+	if err != nil {
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer indexFile.Close()
+
+	// Write the filename to the file
+	_, err = indexFile.WriteString(filename)
+	if err != nil {
+		fmt.Printf("Error writing to file: %v\n", err)
+		return
+	}
+
+	fileData, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Println("Error reading file.")
+	}
+	sha256Hash := sha256.New()
+	sha256Hash.Write(fileData)
+	sha256HashValue := sha256Hash.Sum(nil)
+	fileHash := hex.EncodeToString(sha256HashValue)
+
+	u.AddFileToMeta(filename, fileData, fileHash)
 	fmt.Println(formatOutput(filename, false))
+	fmt.Println("done!")
 
 }
 func (u *User) isFileTracked(filename string) bool {
