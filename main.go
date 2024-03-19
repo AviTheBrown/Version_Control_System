@@ -19,8 +19,17 @@ func main() {
 	if !files.AllFilesCreated() {
 		files.CreateVCSDirWithChildFiles()
 	}
-	user.LoadTrackedFiles("vcs/index.txt")
+	trackedFilesInIndexFile := user.LoadTrackedFiles("vcs/index.txt")
 
+	for _, file := range trackedFilesInIndexFile {
+		fileData, err := os.ReadFile(file)
+		if err != nil {
+			fmt.Printf("Error reading file %v:", file)
+			continue
+		}
+		sha256Hash := hashing.HashFileData(fileData)
+		user.AddFileToMeta(file, fileData, sha256Hash)
+	}
 	mySVCS := datatypes.SVCS{
 		"config":   "Get and set a username.",
 		"add":      "Add a file to the index.",
@@ -29,11 +38,14 @@ func main() {
 		"checkout": "Restore a file.",
 	}
 	processCommandLine(mySVCS, commandOrder)
-	fmt.Println("tessst:")
 	for _, file := range user.FileMeta {
-		fmt.Println("in Loop")
-		fmt.Println(string(file.FileData))
+		// fmt.Println("File data:")
+		fmt.Println()
+		fmt.Println("File Name:", file.FileName)
+		fmt.Println("File Hash:", file.FileHash)
+		fmt.Println()
 	}
+
 }
 
 func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) {
