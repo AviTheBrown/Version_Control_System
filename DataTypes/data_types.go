@@ -24,6 +24,7 @@ type File struct {
 const (
 	CONFIGFILEPATH = "vcs/config.txt"
 	INDEXFILEPATH  = "vcs/index.txt"
+	LOGFILEPATH    = "vcs/log.txt"
 )
 
 func CreateUser() (*User, error) {
@@ -39,11 +40,11 @@ func CreateUser() (*User, error) {
 	}
 }
 
-func (u *User) AddFileToMeta(filename string, fileData []byte, hash string) {
+func (u *User) AddFileToMeta(filename string, fileData []byte, fileHash string) {
 	file := File{
 		FileName: filename,
 		FileData: fileData,
-		FileHash: hash,
+		FileHash: fileHash,
 	}
 	u.FileMeta = append(u.FileMeta, file)
 }

@@ -8,12 +8,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	// "strings"
 )
 
 var user *datatypes.User
 var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 func main() {
+	myString := "hello"
+	fmt.Println(myString)
 	user, _ = datatypes.CreateUser()
 
 	if !files.AllFilesCreated() {
@@ -38,14 +42,6 @@ func main() {
 		"checkout": "Restore a file.",
 	}
 	processCommandLine(mySVCS, commandOrder)
-	for _, file := range user.FileMeta {
-		// fmt.Println("File data:")
-		fmt.Println()
-		fmt.Println("File Name:", file.FileName)
-		fmt.Println("File Hash:", file.FileHash)
-		fmt.Println()
-	}
-
 }
 
 func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) {
@@ -71,7 +67,7 @@ func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) 
 			err           error
 		)
 		if len(os.Args) > 2 {
-			commitMessage = os.Args[2]
+			commitMessage = strings.Join(os.Args[2:], " ")
 			hashString, err = hashing.GenerateCommitHashID(commitMessage)
 			if err != nil {
 				log.Fatal(err)
@@ -80,9 +76,33 @@ func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) 
 			fmt.Println("Message not sent.")
 			return
 		}
-		files.CreatHashDir(commitMessage, hashString, *user)
+		fmt.Println("test reach")
+		hasFileChanged := hashing.CheckForChanges(*user)
+		fmt.Println(commitMessage)
+		fmt.Println("test reach2")
+		if hasFileChanged {
+			files.CreateHashDir(commitMessage, hashString, *user)
+			files.LogAction(hashString, user.UserName, commitMessage)
+		} else {
+			fmt.Println("Nothing to commit (main)")
+		}
 
 	case "log":
+		fileData, err := os.Stat(datatypes.LOGFILEPATH)
+		if err != nil {
+			fmt.Println("Error finding file.")
+			return
+		}
+		if fileData.Size() == 0 {
+			fmt.Println("No commits yet.")
+		} else {
+			contents, err := os.ReadFile(datatypes.LOGFILEPATH)
+			if err != nil {
+				fmt.Println("there was an error reading the file.")
+			}
+			fmt.Println(string(contents))
+		}
+
 	default:
 		defaultString := fmt.Sprintf(printValidCommands(command, mySVCS))
 		fmt.Println(defaultString)
