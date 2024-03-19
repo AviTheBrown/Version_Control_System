@@ -21,6 +21,11 @@ type File struct {
 	FileHash string
 }
 
+const (
+	CONFIGFILEPATH = "vcs/config.txt"
+	INDEXFILEPATH  = "vcs/index.txt"
+)
+
 func CreateUser() (*User, error) {
 	userName, err := os.ReadFile(CONFIGFILEPATH)
 	if err == nil {
@@ -33,11 +38,6 @@ func CreateUser() (*User, error) {
 		return nil, fmt.Errorf("Error opening up CONFIG_FILE_PATH")
 	}
 }
-
-const (
-	CONFIGFILEPATH = "vcs/config.txt"
-	INDEXFILEPATH  = "vcs/index.txt"
-)
 
 func (u *User) AddFileToMeta(filename string, fileData []byte, hash string) {
 	file := File{
@@ -85,7 +85,7 @@ func (u *User) AddAction(filename string) {
 	defer indexFile.Close()
 
 	// Write the filename to the file
-	_, err = indexFile.WriteString(filename)
+	_, err = indexFile.WriteString(filename + "\n")
 	if err != nil {
 		fmt.Printf("Error writing to file: %v\n", err)
 		return

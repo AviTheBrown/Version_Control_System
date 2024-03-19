@@ -107,8 +107,5 @@ func CreatHashDir(commitMsg string, hashString string, user datatypes.User) {
 		fmt.Printf("%s: was added to the hashDir\n", file)
 
 	}
-	fmt.Println("done")
-	fmt.Println("Files after:")
-	fmt.Println(user.FileMeta)
 	fmt.Printf("the hash is: %v", hashString)
 }
