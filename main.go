@@ -16,8 +16,6 @@ var user *datatypes.User
 var commandOrder = []string{"config", "add", "log", "commit", "checkout"}
 
 func main() {
-	myString := "hello"
-	fmt.Println(myString)
 	user, _ = datatypes.CreateUser()
 
 	if !files.AllFilesCreated() {
@@ -78,8 +76,6 @@ func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) 
 		}
 		fmt.Println("test reach")
 		hasFileChanged := hashing.CheckForChanges(*user)
-		fmt.Println(commitMessage)
-		fmt.Println("test reach2")
 		if hasFileChanged {
 			files.CreateHashDir(commitMessage, hashString, *user)
 			files.LogAction(hashString, user.UserName, commitMessage)
