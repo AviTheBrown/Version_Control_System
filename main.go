@@ -75,7 +75,7 @@ func commandActions(command string, usr *datatypes.User, mySVCS datatypes.SVCS) 
 			return
 		}
 		fmt.Println("test reach")
-		hasFileChanged := hashing.CheckForChanges(*user)
+		hasFileChanged := hashing.HasFileChanged(*user)
 		if hasFileChanged {
 			files.CreateHashDir(commitMessage, hashString, *user)
 			files.LogAction(hashString, user.UserName, commitMessage)

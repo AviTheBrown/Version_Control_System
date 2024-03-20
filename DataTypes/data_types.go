@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 type SVCS map[string]string
@@ -16,9 +17,10 @@ type User struct {
 	FileMeta []File
 }
 type File struct {
-	FileName string
-	FileData []byte
-	FileHash string
+	FileName         string
+	FileData         []byte
+	FileCreationTime time.Time
+	FileHash         string
 }
 
 const (
@@ -40,11 +42,12 @@ func CreateUser() (*User, error) {
 	}
 }
 
-func (u *User) AddFileToMeta(filename string, fileData []byte, fileHash string) {
+func (u *User) AddFileToMeta(filename string, fileData []byte, fileHash string, fileCreationTime time.Time) {
 	file := File{
-		FileName: filename,
-		FileData: fileData,
-		FileHash: fileHash,
+		FileName:         filename,
+		FileData:         fileData,
+		FileHash:         fileHash,
+		FileCreationTime: fileCreationTime,
 	}
 	u.FileMeta = append(u.FileMeta, file)
 }
@@ -96,12 +99,16 @@ func (u *User) AddAction(filename string) {
 	if err != nil {
 		fmt.Println("Error reading file.")
 	}
+
+	fileInfo, err := os.Stat(filename)
+	fileCreation := fileInfo.ModTime()
+
 	sha256Hash := sha256.New()
 	sha256Hash.Write(fileData)
 	sha256HashValue := sha256Hash.Sum(nil)
 	fileHash := hex.EncodeToString(sha256HashValue)
 
-	u.AddFileToMeta(filename, fileData, fileHash)
+	u.AddFileToMeta(filename, fileData, fileHash, fileCreation)
 	fmt.Println(formatOutput(filename, false))
 	fmt.Println("done!")
 
