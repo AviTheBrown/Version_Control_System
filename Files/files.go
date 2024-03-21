@@ -12,6 +12,7 @@ import (
 func AllFilesCreated() bool {
 	fileNames := []string{"config.txt", "index.txt", "log.txt"}
 	for _, fileName := range fileNames {
+		// creates the path vcs/<file> <file> <file>
 		filePath := filepath.Join("vcs", fileName)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			return false
@@ -51,7 +52,29 @@ func CreateVCSDirWithChildFiles() {
 		}
 	}
 }
+func countFileInDir(dirPath string) (int, error) {
+	dir, err := os.Open(dirPath)
+	defer dir.Close()
+	if err != nil {
+		fmt.Printf("There was a problem opening up the directory.")
+		log.Fatal(err)
+		return 0, err
+	}
+	files, err := dir.Readdir(-1)
+	if err != nil {
+		fmt.Println("there was a problem reading the files in the dir.")
+		return 0, err
+	}
 
+	count := 0
+
+	for _, file := range files {
+		if file.Mode().IsRegular() {
+			count++
+		}
+	}
+	return count, nil
+}
 func CreateHashDir(commitMsg string, hashString string, user datatypes.User) {
 	var err error
 	// vcs/commits
@@ -65,6 +88,7 @@ func CreateHashDir(commitMsg string, hashString string, user datatypes.User) {
 		err := os.MkdirAll(commitHashDir, 0755)
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		fmt.Println("Commit Hash Dir Created.")
 
@@ -72,7 +96,6 @@ func CreateHashDir(commitMsg string, hashString string, user datatypes.User) {
 	//creates the files that are in index.txt and add them to hashed commits dir
 	for _, file := range user.FileMeta {
 		// vcs/commits/<hashDir>/file.txt
-		// file, _ := os.Open()
 		completedHashDirFilePath := filepath.Join(commitHashDir, file.FileName)
 		err := os.WriteFile(completedHashDirFilePath, file.FileData, 0655)
 		if err != nil {
@@ -82,7 +105,6 @@ func CreateHashDir(commitMsg string, hashString string, user datatypes.User) {
 		_, err = os.Stat(completedHashDirFilePath)
 
 		if err == nil {
-			fmt.Println("file already created in the corresponding commit dir")
 		} else {
 			err := os.MkdirAll(completedHashDirFilePath, 0755)
 			if err != nil {
@@ -91,7 +113,6 @@ func CreateHashDir(commitMsg string, hashString string, user datatypes.User) {
 		}
 
 	}
-	fmt.Printf("the hash is: %v", hashString)
 }
 func LogAction(fileCommit string, author string, commitMessage string) {
 	fmt.Println("in log file.")
